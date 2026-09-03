@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Source Serif 4', Georgia, Cambria, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  
+  --color-stone-bg: #F5F5F0;
+  --color-stone-surface: #FAF9F6;
+  --color-stone-card: #FFFFFF;
+  --color-stone-sidebar: #EAE7DE;
+  --color-stone-border: #E0DBCF;
+  --color-stone-border-strong: #CDC6B8;
+  
+  --color-earth-primary: #5A5A40;
+  --color-earth-primary-hover: #484832;
+  --color-earth-primary-light: #F0EFEA;
+  
+  --color-earth-accent: #A57C52;
+  --color-earth-accent-hover: #8F6942;
+  --color-earth-accent-light: #F8F3ED;
+  
+  --color-earth-text-heading: #323228;
+  --color-earth-text-body: #4A4A40;
+  --color-earth-text-muted: #858072;
+}
+
+body {
+  background-color: #F5F5F0;
+  color: #4A4A40;
+  font-family: var(--font-sans);
+}
