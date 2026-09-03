@@ -82,30 +82,67 @@ firebase deploy --only firestore:rules
 
 ---
 
-### 4. Cloud Run Build & Deployment Flow
-Deploy the full-stack container to Cloud Run:
+### 4. Cloud Run Build & Deployment Flow (Single-Step Deployment + Labeling)
+
+You can deploy the container and apply the challenge verification label in **one single command**, avoiding errors from updating a service before it exists:
 
 ```bash
-# Build and deploy container directly to Cloud Run
-gcloud run deploy reflectai-app \
+# Set your active project
+gcloud config set project awesome-visitor-6dzmz
+
+# Deploy and automatically apply verification label in one step
+gcloud run deploy reflectai-journal \
   --source . \
-  --region us-central1 \
+  --region asia-southeast1 \
   --platform managed \
   --allow-unauthenticated \
   --set-secrets="GEMINI_API_KEY=GEMINI_API_KEY:latest" \
+  --update-labels=dev-tutorial=cloud-run-ai-challenge \
   --port 3000
+```
+
+> **Note:** If deploying to a different region (such as `us-central1`), replace `asia-southeast1` consistently across all commands.
+
+---
+
+### 5. Applying the Verification Resource Label (Existing Service)
+
+If your service `reflectai-journal` is already deployed and running, update its resource label with:
+
+```bash
+gcloud run services update reflectai-journal \
+  --update-labels=dev-tutorial=cloud-run-ai-challenge \
+  --region=asia-southeast1
 ```
 
 ---
 
-### 5. Mandatory Verification Resource Labeling
-Apply the campaign verification label to the deployed Cloud Run service:
+### 🔧 Troubleshooting: `Permission 'run.services.update' denied (or resource may not exist)`
 
-```bash
-gcloud run services update reflectai-app \
-  --update-labels=dev-tutorial=cloud-run-ai-challenge \
-  --region=us-central1
-```
+If you encounter the error:
+`Permission 'run.services.update' denied on resource 'namespaces/awesome-visitor-6dzmz/services/reflectai-journal' (or resource may not exist)`
+
+This occurs due to one of three common causes:
+
+1. **The service does not exist yet:** `gcloud run services update` can only update an *already existing* service. If you have not run `gcloud run deploy reflectai-journal` first, Cloud Run returns `permission denied (or resource may not exist)`. 
+   - **Fix:** Use the single-step deploy command in Section 4 above, which passes `--update-labels=dev-tutorial=cloud-run-ai-challenge` directly during `gcloud run deploy`.
+
+2. **Region mismatch:** If the service was deployed in `asia-southeast1` (or another region) and the update command was run without `--region` or with a different region (e.g., `us-central1`), Cloud Run cannot find the service.
+   - **Fix:** Explicitly pass `--region asia-southeast1` (or your chosen region) to match your service location.
+
+3. **Missing IAM Permissions for your account (`ss736956@gmail.com`):**
+   - Grant Cloud Run Admin and Service Account User permissions on project `awesome-visitor-6dzmz`:
+   ```bash
+   # Grant Cloud Run Admin to your user
+   gcloud projects add-iam-policy-binding awesome-visitor-6dzmz \
+     --member="user:ss736956@gmail.com" \
+     --role="roles/run.admin"
+
+   # Grant Service Account User to act as the runtime service account
+   gcloud projects add-iam-policy-binding awesome-visitor-6dzmz \
+     --member="user:ss736956@gmail.com" \
+     --role="roles/iam.serviceAccountUser"
+   ```
 
 ---
 
